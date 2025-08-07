@@ -5,6 +5,25 @@ bool is_fibonacci(int *ptr, int len, int stride) {
     ASSERT(len >= 3, "`len` should be at least 3");
     // TODO: 编写代码判断从 ptr 开始，每 stride 个元素取 1 个元素，组成长度为 n 的数列是否满足
     // arr[i + 2] = arr[i] + arr[i + 1]
+
+    // 我们需要遍历这个逻辑上的数列，检查每一组连续的三个数。
+    // 循环变量 i 代表的是逻辑数列中的索引，而不是物理内存的偏移量。
+    // 循环到 len - 2 即可，因为每次检查都需要 i, i+1, i+2 这三个元素。
+    for (int i = 0; i < len - 2; ++i) {
+        // 使用指针和步长来定位逻辑数列中的三个连续元素
+        // 逻辑第 i   个数的地址是: ptr + i * stride
+        // 逻辑第 i+1 个数的地址是: ptr + (i+1) * stride
+        // 逻辑第 i+2 个数的地址是: ptr + (i+2) * stride
+        // C++ 的 [] 运算符是 *(ptr + offset) 的语法糖。
+        // 所以我们可以直接用 ptr[i * stride] 来获取值。
+        
+        if (ptr[(i + 2) * stride] != ptr[i * stride] + ptr[(i + 1) * stride]) {
+            // 只要有一组不满足斐波那契条件，整个数列就不是斐波那契数列。
+            return false;
+        }
+    }
+
+    // 如果循环顺利结束，说明所有检查都通过了。
     return true;
 }
 

@@ -42,38 +42,46 @@ int main(int argc, char **argv) {
     C c;
     D d;
 
-    ASSERT(a.virtual_name() == '?', MSG);
-    ASSERT(b.virtual_name() == '?', MSG);
-    ASSERT(c.virtual_name() == '?', MSG);
-    ASSERT(d.virtual_name() == '?', MSG);
-    ASSERT(a.direct_name() == '?', MSG);
-    ASSERT(b.direct_name() == '?', MSG);
-    ASSERT(c.direct_name() == '?', MSG);
-    ASSERT(d.direct_name() == '?', MSG);
+    // ---- Group 1: Direct calls on objects ----
+    // Calls are resolved based on the object's actual type.
+    ASSERT(a.virtual_name() == 'A', MSG);
+    ASSERT(b.virtual_name() == 'B', MSG);
+    ASSERT(c.virtual_name() == 'C', MSG);
+    ASSERT(d.virtual_name() == 'C', MSG); // D inherits C's virtual_name
+    ASSERT(a.direct_name() == 'A', MSG);
+    ASSERT(b.direct_name() == 'B', MSG);
+    ASSERT(c.direct_name() == 'C', MSG);
+    ASSERT(d.direct_name() == 'D', MSG);
 
-    A &rab = b;
-    B &rbc = c;
-    C &rcd = d;
+    // ---- Group 2: Calls through references ----
+    A &rab = b; // Reference of type A, refers to an object of type B
+    B &rbc = c; // Reference of type B, refers to an object of type C
+    C &rcd = d; // Reference of type C, refers to an object of type D
 
-    ASSERT(rab.virtual_name() == '?', MSG);
-    ASSERT(rbc.virtual_name() == '?', MSG);
-    ASSERT(rcd.virtual_name() == '?', MSG);
-    ASSERT(rab.direct_name() == '?', MSG);
-    ASSERT(rbc.direct_name() == '?', MSG);
-    ASSERT(rcd.direct_name() == '?', MSG);
+    // Virtual calls: Resolved at RUNTIME based on the ACTUAL type of the object.
+    ASSERT(rab.virtual_name() == 'B', MSG); // rab refers to a B object
+    ASSERT(rbc.virtual_name() == 'C', MSG); // rbc refers to a C object
+    ASSERT(rcd.virtual_name() == 'C', MSG); // rcd refers to a D object, D inherits C's final virtual_name
 
-    A &rac = c;
-    B &rbd = d;
+    // Direct calls: Resolved at COMPILE-TIME based on the DECLARED type of the reference.
+    ASSERT(rab.direct_name() == 'A', MSG); // rab is declared as A&
+    ASSERT(rbc.direct_name() == 'B', MSG); // rbc is declared as B&
+    ASSERT(rcd.direct_name() == 'C', MSG); // rcd is declared as C&
 
-    ASSERT(rac.virtual_name() == '?', MSG);
-    ASSERT(rbd.virtual_name() == '?', MSG);
-    ASSERT(rac.direct_name() == '?', MSG);
-    ASSERT(rbd.direct_name() == '?', MSG);
+    // ---- Group 3: More calls through references ----
+    A &rac = c; // Reference of type A, refers to an object of type C
+    B &rbd = d; // Reference of type B, refers to an object of type D
 
-    A &rad = d;
+    ASSERT(rac.virtual_name() == 'C', MSG); // rac refers to a C object
+    ASSERT(rbd.virtual_name() == 'C', MSG); // rbd refers to a D object, D inherits C's final virtual_name
+    ASSERT(rac.direct_name() == 'A', MSG); // rac is declared as A&
+    ASSERT(rbd.direct_name() == 'B', MSG); // rbd is declared as B&
 
-    ASSERT(rad.virtual_name() == '?', MSG);
-    ASSERT(rad.direct_name() == '?', MSG);
+    // ---- Group 4: Final call through reference ----
+    A &rad = d; // Reference of type A, refers to an object of type D
+
+    ASSERT(rad.virtual_name() == 'C', MSG); // rad refers to a D object, D inherits C's final virtual_name
+    ASSERT(rad.direct_name() == 'A', MSG); // rad is declared as A&
 
     return 0;
 }
